@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizCraft - Master Any Topic</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <!-- Navigation Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('create')">
+                <div class="bg-brand-600 text-white p-2 rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-graduation-cap text-xl"></i>
+                </div>
+                <span class="font-bold text-xl text-slate-900 tracking-tight">QuizCraft</span>
+            </div>
+            <nav class="flex items-center space-x-4">
+                <button onclick="switchView('create')" class="text-sm font-medium text-slate-600 hover:text-brand-600 px-3 py-2 rounded-lg transition">Create Quiz</button>
+                <button onclick="switchView('saved')" class="text-sm font-medium text-slate-600 hover:text-brand-600 px-3 py-2 rounded-lg transition">Saved Topics</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- STEP 1: CREATE QUIZ FORM -->
+        <section id="view-create" class="space-y-6">
+            <div class="text-center max-w-2xl mx-auto space-y-2">
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Master Any Difficult Topic</h1>
+                <p class="text-slate-500">Generate targeted practice quizzes for specific chapters or sub-topics you struggle with, analyze your mistakes, and build deep understanding.</p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 max-w-2xl mx-auto">
+                <form id="quiz-form" onsubmit="handleGenerateQuiz(event)" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Subject / Subject Area</label>
+                        <input type="text" id="subject-input" required placeholder="e.g., Physics, Organic Chemistry, World History" 
+                            class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-sm">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Specific Topic or Chapter</label>
+                        <input type="text" id="topic-input" required placeholder="e.g., Photosynthesis, Quadratic Equations, Newton's Laws" 
+                            class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-sm">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Difficulty Level</label>
+                            <select id="difficulty-input" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-sm bg-white">
+                                <option value="Easy">Beginner (Concept Building)</option>
+                                <option value="Medium" selected>Intermediate (Standard)</option>
+                                <option value="Hard">Advanced (Deep Problem Solving)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Number of Questions</label>
+                            <select id="questions-count" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-sm bg-white">
+                                <option value="3">3 Practice Questions</option>
+                                <option value="5" selected>5 Practice Questions</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3.5 px-6 rounded-xl shadow-sm transition duration-200 flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>Generate Custom Practice Quiz</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- STEP 2: ACTIVE QUIZ VIEW -->
+        <section id="view-quiz" class="hidden space-y-6 max-w-3xl mx-auto">
+            <!-- Quiz Meta Header -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <span id="quiz-badge" class="inline-block px-3 py-1 bg-brand-50 text-brand-600 text-xs font-semibold rounded-full mb-1">Topic</span>
+                    <h2 id="quiz-topic-title" class="text-xl font-bold text-slate-900">Photosynthesis Deep Dive</h2>
+                </div>
+                <div class="flex items-center space-x-2 text-slate-500 text-sm">
+                    <i class="fa-regular fa-clock"></i>
+                    <span>Untimed Self-Paced Practice</span>
+                </div>
+            </div>
+
+            <!-- Questions Container -->
+            <div id="questions-container" class="space-y-6"></div>
+
+            <!-- Submit Button -->
+            <div class="flex justify-end pt-4">
+                <button onclick="submitQuiz()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-8 rounded-xl shadow-sm transition flex items-center space-x-2">
+                    <i class="fa-solid fa-check"></i>
+                    <span>Submit & Analyze Results</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- STEP 3: RESULTS & MISTAKE ANALYSIS VIEW -->
+        <section id="view-results" class="hidden space-y-8 max-w-3xl mx-auto">
+            <!-- Score Summary Card -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm text-center space-y-4">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-brand-50 text-brand-600 text-2xl font-black" id="score-circle">
+                    0/0
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900" id="result-headline">Performance Summary</h2>
+                    <p class="text-slate-500 text-sm mt-1" id="result-subtext">Review your answers below to correct mistakes and strengthen your understanding.</p>
+                </div>
+                <div class="flex justify-center gap-4 pt-2">
+                    <button onclick="switchView('create')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-5 py-2.5 rounded-xl font-medium text-sm transition">
+                        Try Another Topic
+                    </button>
+                    <button onclick="retakeQuiz()" class="bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 rounded-xl font-medium text-sm transition flex items-center space-x-2">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span>Retake This Quiz</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Detailed Breakdown Section -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                    <i class="fa-solid fa-magnifying-glass font-normal text-brand-600"></i>
+                    <span>Mistake Analysis & Concepts</span>
+                </h3>
+                <div id="analysis-container" class="space-y-6"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-auto py-6">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-400">
+            QuizCraft • Empowering Students to Convert Mistakes into Mastery
+        </div>
+    </footer>
+
+    <!-- Application Script -->
+    <script>
+        // Sample predefined question bank to simulate AI topic quiz generation
+        const sampleDatabase = {
+            "default": [
+                {
+                    id: 1,
+                    question: "What is the primary role of Chlorophyll during Photosynthesis?",
+                    options: [
+                        "Absorbing light energy from the sun",
+                        "Absorbing water from the soil",
+                        "Releasing carbon dioxide into the air",
+                        "Breaking down glucose for immediate energy"
+                    ],
+                    correct: 0,
+                    explanation: "Chlorophyll is the green pigment in plants that absorbs light energy (mostly blue and red wavelengths) and converts it into chemical energy."
+                },
+                {
+                    id: 2,
+                    question: "Which organelle inside plant cells is responsible for carrying out photosynthesis?",
+                    options: [
+                        "Mitochondria",
+                        "Chloroplast",
+                        "Ribosome",
+                        "Endoplasmic Reticulum"
+                    ],
+                    correct: 1,
+                    explanation: "Chloroplasts contain chlorophyll and the necessary enzymatic machinery to convert solar energy into chemical energy."
+                },
+                {
+                    id: 3,
+                    question: "What are the two primary end-products of Photosynthesis?",
+                    options: [
+                        "Carbon Dioxide and Water",
+                        "Glucose and Oxygen",
+                        "Nitrogen and ATP",
+                        "Glucose and Carbon Dioxide"
+                    ],
+                    correct: 1,
+                    explanation: "During photosynthesis, plants take in carbon dioxide and water to produce Glucose (food) and Oxygen (released into the atmosphere)."
+                }
+            ]
+        };
+
+        let currentQuizData = [];
+        let userAnswers = {};
+
+        function switchView(viewName) {
+            document.getElementById('view-create').classList.add('hidden');
+            document.getElementById('view-quiz').classList.add('hidden');
+            document.getElementById('view-results').classList.add('hidden');
+
+            if (viewName === 'create') {
+                document.getElementById('view-create').classList.remove('hidden');
+            } else if (viewName === 'quiz') {
+                document.getElementById('view-quiz').classList.remove('hidden');
+            } else if (viewName === 'results') {
+                document.getElementById('view-results').classList.remove('hidden');
+            }
+        }
+
+        function handleGenerateQuiz(e) {
+            e.preventDefault();
+            const subject = document.getElementById('subject-input').value;
+            const topic = document.getElementById('topic-input').value;
+
+            // Set Meta Details
+            document.getElementById('quiz-topic-title').innerText = `${topic} (${subject})`;
+            document.getElementById('quiz-badge').innerText = subject;
+
+            // Load questions (In a full app, this would call an API/AI endpoint based on topic)
+            currentQuizData = sampleDatabase.default;
+            userAnswers = {};
+
+            renderQuizQuestions();
+            switchView('quiz');
+        }
+
+        function renderQuizQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            currentQuizData.forEach((q, index) => {
+                const card = document.createElement('div');
+                card.className = "bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4";
+                
+                let optionsHTML = '';
+                q.options.forEach((opt, optIndex) => {
+                    optionsHTML += `
+                        <label class="flex items-center space-x-3 p-3.5 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition">
+                            <input type="radio" name="question-${q.id}" value="${optIndex}" onchange="recordAnswer(${q.id}, ${optIndex})" class="w-4 h-4 text-brand-600 focus:ring-brand-500">
+                            <span class="text-sm font-medium text-slate-700">${opt}</span>
+                        </label>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <span class="text-xs font-bold text-brand-600 bg-brand-50 px-2.5 py-1 rounded-md">Question ${index + 1}</span>
+                    </div>
+                    <h3 class="font-semibold text-slate-800 text-base">${q.question}</h3>
+                    <div class="space-y-2.5 pt-2">
+                        ${optionsHTML}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function recordAnswer(questionId, optionIndex) {
+            userAnswers[questionId] = optionIndex;
+        }
+
+        function submitQuiz() {
+            if (Object.keys(userAnswers).length < currentQuizData.length) {
+                if (!confirm("You haven't answered all questions. Are you sure you want to submit?")) {
+                    return;
+                }
+            }
+
+            renderResults();
+            switchView('results');
+        }
+
+        function renderResults() {
+            let correctCount = 0;
+            const analysisContainer = document.getElementById('analysis-container');
+            analysisContainer.innerHTML = '';
+
+            currentQuizData.forEach((q, index) => {
+                const selected = userAnswers[q.id];
+                const isCorrect = selected === q.correct;
+                if (isCorrect) correctCount++;
+
+                const resultCard = document.createElement('div');
+                resultCard.className = `bg-white border rounded-2xl p-6 shadow-sm space-y-4 ${
+                    isCorrect ? 'border-emerald-200 bg-emerald-50/20' : 'border-rose-200 bg-rose-50/20'
+                }`;
+
+                let optionsAnalysis = '';
+                q.options.forEach((opt, optIndex) => {
+                    let badge = '';
+                    let borderClass = 'border-slate-200 bg-white';
+
+                    if (optIndex === q.correct) {
+                        borderClass = 'border-emerald-500 bg-emerald-50 text-emerald-900 font-medium';
+                        badge = `<span class="ml-auto text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">Correct Answer</span>`;
+                    } else if (optIndex === selected && !isCorrect) {
+                        borderClass = 'border-rose-500 bg-rose-50 text-rose-900 font-medium';
+                        badge = `<span class="ml-auto text-xs font-bold text-rose-700 bg-rose-100 px-2 py-0.5 rounded">Your Selection (Incorrect)</span>`;
+                    }
+
+                    optionsAnalysis += `
+                        <div class="flex items-center space-x-3 p-3 rounded-xl border ${borderClass} text-sm">
+                            <span>${opt}</span>
+                            ${badge}
+                        </div>
+                    `;
+                });
+
+                resultCard.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold ${isCorrect ? 'text-emerald-700 bg-emerald-100' : 'text-rose-700 bg-rose-100'} px-2.5 py-1 rounded-md">
+                            Question ${index + 1} - ${isCorrect ? 'Correct' : 'Needs Review'}
+                        </span>
+                    </div>
+                    <h4 class="font-semibold text-slate-800">${q.question}</h4>
+                    <div class="space-y-2 pt-1">${optionsAnalysis}</div>
+                    
+                    <!-- Conceptual Feedback / Correction Box -->
+                    <div class="mt-4 p-4 rounded-xl bg-white border border-slate-200 text-xs text-slate-600 leading-relaxed space-y-1">
+                        <div class="font-bold text-slate-800 flex items-center space-x-1.5">
+                            <i class="fa-solid fa-lightbulb text-amber-500"></i>
+                            <span>Concept Explanation:</span>
+                        </div>
+                        <p>${q.explanation}</p>
+                    </div>
+                `;
+
+                analysisContainer.appendChild(resultCard);
+            });
+
+            // Update Header Score
+            document.getElementById('score-circle').innerText = `${correctCount}/${currentQuizData.length}`;
+            if (correctCount === currentQuizData.length) {
+                document.getElementById('result-headline').innerText = "Perfect Mastery!";
+                document.getElementById('result-subtext').innerText = "Excellent work! You have demonstrated strong understanding of this topic.";
+            } else {
+                document.getElementById('result-headline').innerText = "Review & Correct Your Mistakes";
+                document.getElementById('result-subtext').innerText = "Carefully review the explanations below for questions you got wrong to fix your weak areas.";
+            }
+        }
+
+        function retakeQuiz() {
+            userAnswers = {};
+            renderQuizQuestions();
+            switchView('quiz');
+        }
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizCraft - Master Any Topic</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <!-- Navigation Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('create')">
+                <div class="bg-brand-600 text-white p-2 rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-graduation-cap text-xl"></i>
+                </div>
+                <span class="font-bold text-xl text-slate-900 tracking-tight">QuizCraft</span>
+            </div>
+            <nav class="flex items-center space-x-4">
+                <button onclick="switchView('create')" class="text-sm font-medium text-slate-600 hover:text-brand-600 px-3 py-2 rounded-lg transition">Create Quiz</button>
+                <button onclick="switchView('saved')" class="text-sm font-medium text-slate-600 hover:text-brand-600 px-3 py-2 rounded-lg transition">Saved Topics</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- STEP 1: CREATE QUIZ FORM -->
+        <section id="view-create" class="space-y-6">
+            <div class="text-center max-w-2xl mx-auto space-y-2">
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Master Any Difficult Topic</h1>
+                <p class="text-slate-500">Generate targeted practice quizzes for specific chapters or sub-topics you struggle with, analyze your mistakes, and build deep understanding.</p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 max-w-2xl mx-auto">
+                <form id="quiz-form" onsubmit="handleGenerateQuiz(event)" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Subject / Subject Area</label>
+                        <input type="text" id="subject-input" required placeholder="e.g., Physics, Organic Chemistry, World History" 
+                            class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-sm">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Specific Topic or Chapter</label>
+                        <input type="text" id="topic-input" required placeholder="e.g., Photosynthesis, Quadratic Equations, Newton's Laws" 
+                            class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-sm">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Difficulty Level</label>
+                            <select id="difficulty-input" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-sm bg-white">
+                                <option value="Easy">Beginner (Concept Building)</option>
+                                <option value="Medium" selected>Intermediate (Standard)</option>
+                                <option value="Hard">Advanced (Deep Problem Solving)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Number of Questions</label>
+                            <select id="questions-count" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-sm bg-white">
+                                <option value="3">3 Practice Questions</option>
+                                <option value="5" selected>5 Practice Questions</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3.5 px-6 rounded-xl shadow-sm transition duration-200 flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>Generate Custom Practice Quiz</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- STEP 2: ACTIVE QUIZ VIEW -->
+        <section id="view-quiz" class="hidden space-y-6 max-w-3xl mx-auto">
+            <!-- Quiz Meta Header -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <span id="quiz-badge" class="inline-block px-3 py-1 bg-brand-50 text-brand-600 text-xs font-semibold rounded-full mb-1">Topic</span>
+                    <h2 id="quiz-topic-title" class="text-xl font-bold text-slate-900">Photosynthesis Deep Dive</h2>
+                </div>
+                <div class="flex items-center space-x-2 text-slate-500 text-sm">
+                    <i class="fa-regular fa-clock"></i>
+                    <span>Untimed Self-Paced Practice</span>
+                </div>
+            </div>
+
+            <!-- Questions Container -->
+            <div id="questions-container" class="space-y-6"></div>
+
+            <!-- Submit Button -->
+            <div class="flex justify-end pt-4">
+                <button onclick="submitQuiz()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-8 rounded-xl shadow-sm transition flex items-center space-x-2">
+                    <i class="fa-solid fa-check"></i>
+                    <span>Submit & Analyze Results</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- STEP 3: RESULTS & MISTAKE ANALYSIS VIEW -->
+        <section id="view-results" class="hidden space-y-8 max-w-3xl mx-auto">
+            <!-- Score Summary Card -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm text-center space-y-4">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-brand-50 text-brand-600 text-2xl font-black" id="score-circle">
+                    0/0
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900" id="result-headline">Performance Summary</h2>
+                    <p class="text-slate-500 text-sm mt-1" id="result-subtext">Review your answers below to correct mistakes and strengthen your understanding.</p>
+                </div>
+                <div class="flex justify-center gap-4 pt-2">
+                    <button onclick="switchView('create')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-5 py-2.5 rounded-xl font-medium text-sm transition">
+                        Try Another Topic
+                    </button>
+                    <button onclick="retakeQuiz()" class="bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 rounded-xl font-medium text-sm transition flex items-center space-x-2">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span>Retake This Quiz</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Detailed Breakdown Section -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                    <i class="fa-solid fa-magnifying-glass font-normal text-brand-600"></i>
+                    <span>Mistake Analysis & Concepts</span>
+                </h3>
+                <div id="analysis-container" class="space-y-6"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-auto py-6">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-400">
+            QuizCraft • Empowering Students to Convert Mistakes into Mastery
+        </div>
+    </footer>
+
+    <!-- Application Script -->
+    <script>
+        // Sample predefined question bank to simulate AI topic quiz generation
+        const sampleDatabase = {
+            "default": [
+                {
+                    id: 1,
+                    question: "What is the primary role of Chlorophyll during Photosynthesis?",
+                    options: [
+                        "Absorbing light energy from the sun",
+                        "Absorbing water from the soil",
+                        "Releasing carbon dioxide into the air",
+                        "Breaking down glucose for immediate energy"
+                    ],
+                    correct: 0,
+                    explanation: "Chlorophyll is the green pigment in plants that absorbs light energy (mostly blue and red wavelengths) and converts it into chemical energy."
+                },
+                {
+                    id: 2,
+                    question: "Which organelle inside plant cells is responsible for carrying out photosynthesis?",
+                    options: [
+                        "Mitochondria",
+                        "Chloroplast",
+                        "Ribosome",
+                        "Endoplasmic Reticulum"
+                    ],
+                    correct: 1,
+                    explanation: "Chloroplasts contain chlorophyll and the necessary enzymatic machinery to convert solar energy into chemical energy."
+                },
+                {
+                    id: 3,
+                    question: "What are the two primary end-products of Photosynthesis?",
+                    options: [
+                        "Carbon Dioxide and Water",
+                        "Glucose and Oxygen",
+                        "Nitrogen and ATP",
+                        "Glucose and Carbon Dioxide"
+                    ],
+                    correct: 1,
+                    explanation: "During photosynthesis, plants take in carbon dioxide and water to produce Glucose (food) and Oxygen (released into the atmosphere)."
+                }
+            ]
+        };
+
+        let currentQuizData = [];
+        let userAnswers = {};
+
+        function switchView(viewName) {
+            document.getElementById('view-create').classList.add('hidden');
+            document.getElementById('view-quiz').classList.add('hidden');
+            document.getElementById('view-results').classList.add('hidden');
+
+            if (viewName === 'create') {
+                document.getElementById('view-create').classList.remove('hidden');
+            } else if (viewName === 'quiz') {
+                document.getElementById('view-quiz').classList.remove('hidden');
+            } else if (viewName === 'results') {
+                document.getElementById('view-results').classList.remove('hidden');
+            }
+        }
+
+        function handleGenerateQuiz(e) {
+            e.preventDefault();
+            const subject = document.getElementById('subject-input').value;
+            const topic = document.getElementById('topic-input').value;
+
+            // Set Meta Details
+            document.getElementById('quiz-topic-title').innerText = `${topic} (${subject})`;
+            document.getElementById('quiz-badge').innerText = subject;
+
+            // Load questions (In a full app, this would call an API/AI endpoint based on topic)
+            currentQuizData = sampleDatabase.default;
+            userAnswers = {};
+
+            renderQuizQuestions();
+            switchView('quiz');
+        }
+
+        function renderQuizQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            currentQuizData.forEach((q, index) => {
+                const card = document.createElement('div');
+                card.className = "bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4";
+                
+                let optionsHTML = '';
+                q.options.forEach((opt, optIndex) => {
+                    optionsHTML += `
+                        <label class="flex items-center space-x-3 p-3.5 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition">
+                            <input type="radio" name="question-${q.id}" value="${optIndex}" onchange="recordAnswer(${q.id}, ${optIndex})" class="w-4 h-4 text-brand-600 focus:ring-brand-500">
+                            <span class="text-sm font-medium text-slate-700">${opt}</span>
+                        </label>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <span class="text-xs font-bold text-brand-600 bg-brand-50 px-2.5 py-1 rounded-md">Question ${index + 1}</span>
+                    </div>
+                    <h3 class="font-semibold text-slate-800 text-base">${q.question}</h3>
+                    <div class="space-y-2.5 pt-2">
+                        ${optionsHTML}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function recordAnswer(questionId, optionIndex) {
+            userAnswers[questionId] = optionIndex;
+        }
+
+        function submitQuiz() {
+            if (Object.keys(userAnswers).length < currentQuizData.length) {
+                if (!confirm("You haven't answered all questions. Are you sure you want to submit?")) {
+                    return;
+                }
+            }
+
+            renderResults();
+            switchView('results');
+        }
+
+        function renderResults() {
+            let correctCount = 0;
+            const analysisContainer = document.getElementById('analysis-container');
+            analysisContainer.innerHTML = '';
+
+            currentQuizData.forEach((q, index) => {
+                const selected = userAnswers[q.id];
+                const isCorrect = selected === q.correct;
+                if (isCorrect) correctCount++;
+
+                const resultCard = document.createElement('div');
+                resultCard.className = `bg-white border rounded-2xl p-6 shadow-sm space-y-4 ${
+                    isCorrect ? 'border-emerald-200 bg-emerald-50/20' : 'border-rose-200 bg-rose-50/20'
+                }`;
+
+                let optionsAnalysis = '';
+                q.options.forEach((opt, optIndex) => {
+                    let badge = '';
+                    let borderClass = 'border-slate-200 bg-white';
+
+                    if (optIndex === q.correct) {
+                        borderClass = 'border-emerald-500 bg-emerald-50 text-emerald-900 font-medium';
+                        badge = `<span class="ml-auto text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">Correct Answer</span>`;
+                    } else if (optIndex === selected && !isCorrect) {
+                        borderClass = 'border-rose-500 bg-rose-50 text-rose-900 font-medium';
+                        badge = `<span class="ml-auto text-xs font-bold text-rose-700 bg-rose-100 px-2 py-0.5 rounded">Your Selection (Incorrect)</span>`;
+                    }
+
+                    optionsAnalysis += `
+                        <div class="flex items-center space-x-3 p-3 rounded-xl border ${borderClass} text-sm">
+                            <span>${opt}</span>
+                            ${badge}
+                        </div>
+                    `;
+                });
+
+                resultCard.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold ${isCorrect ? 'text-emerald-700 bg-emerald-100' : 'text-rose-700 bg-rose-100'} px-2.5 py-1 rounded-md">
+                            Question ${index + 1} - ${isCorrect ? 'Correct' : 'Needs Review'}
+                        </span>
+                    </div>
+                    <h4 class="font-semibold text-slate-800">${q.question}</h4>
+                    <div class="space-y-2 pt-1">${optionsAnalysis}</div>
+                    
+                    <!-- Conceptual Feedback / Correction Box -->
+                    <div class="mt-4 p-4 rounded-xl bg-white border border-slate-200 text-xs text-slate-600 leading-relaxed space-y-1">
+                        <div class="font-bold text-slate-800 flex items-center space-x-1.5">
+                            <i class="fa-solid fa-lightbulb text-amber-500"></i>
+                            <span>Concept Explanation:</span>
+                        </div>
+                        <p>${q.explanation}</p>
+                    </div>
+                `;
+
+                analysisContainer.appendChild(resultCard);
+            });
+
+            // Update Header Score
+            document.getElementById('score-circle').innerText = `${correctCount}/${currentQuizData.length}`;
+            if (correctCount === currentQuizData.length) {
+                document.getElementById('result-headline').innerText = "Perfect Mastery!";
+                document.getElementById('result-subtext').innerText = "Excellent work! You have demonstrated strong understanding of this topic.";
+            } else {
+                document.getElementById('result-headline').innerText = "Review & Correct Your Mistakes";
+                document.getElementById('result-subtext').innerText = "Carefully review the explanations below for questions you got wrong to fix your weak areas.";
+            }
+        }
+
+        function retakeQuiz() {
+            userAnswers = {};
+            renderQuizQuestions();
+            switchView('quiz');
+        }
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizCraft - Master Any Topic</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <!-- Navigation Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('create')">
+                <div class="bg-brand-600 text-white p-2 rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-graduation-cap text-xl"></i>
+                </div>
+                <span class="font-bold text-xl text-slate-900 tracking-tight">QuizCraft</span>
+            </div>
+            <nav class="flex items-center space-x-4">
+                <button onclick="switchView('create')" class="text-sm font-medium text-slate-600 hover:text-brand-600 px-3 py-2 rounded-lg transition">Create Quiz</button>
+                <button onclick="switchView('saved')" class="text-sm font-medium text-slate-600 hover:text-brand-600 px-3 py-2 rounded-lg transition">Saved Topics</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- STEP 1: CREATE QUIZ FORM -->
+        <section id="view-create" class="space-y-6">
+            <div class="text-center max-w-2xl mx-auto space-y-2">
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Master Any Difficult Topic</h1>
+                <p class="text-slate-500">Generate targeted practice quizzes for specific chapters or sub-topics you struggle with, analyze your mistakes, and build deep understanding.</p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 max-w-2xl mx-auto">
+                <form id="quiz-form" onsubmit="handleGenerateQuiz(event)" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Subject / Subject Area</label>
+                        <input type="text" id="subject-input" required placeholder="e.g., Physics, Organic Chemistry, World History" 
+                            class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-sm">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Specific Topic or Chapter</label>
+                        <input type="text" id="topic-input" required placeholder="e.g., Photosynthesis, Quadratic Equations, Newton's Laws" 
+                            class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-sm">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Difficulty Level</label>
+                            <select id="difficulty-input" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-sm bg-white">
+                                <option value="Easy">Beginner (Concept Building)</option>
+                                <option value="Medium" selected>Intermediate (Standard)</option>
+                                <option value="Hard">Advanced (Deep Problem Solving)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Number of Questions</label>
+                            <select id="questions-count" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-sm bg-white">
+                                <option value="3">3 Practice Questions</option>
+                                <option value="5" selected>5 Practice Questions</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3.5 px-6 rounded-xl shadow-sm transition duration-200 flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>Generate Custom Practice Quiz</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- STEP 2: ACTIVE QUIZ VIEW -->
+        <section id="view-quiz" class="hidden space-y-6 max-w-3xl mx-auto">
+            <!-- Quiz Meta Header -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <span id="quiz-badge" class="inline-block px-3 py-1 bg-brand-50 text-brand-600 text-xs font-semibold rounded-full mb-1">Topic</span>
+                    <h2 id="quiz-topic-title" class="text-xl font-bold text-slate-900">Photosynthesis Deep Dive</h2>
+                </div>
+                <div class="flex items-center space-x-2 text-slate-500 text-sm">
+                    <i class="fa-regular fa-clock"></i>
+                    <span>Untimed Self-Paced Practice</span>
+                </div>
+            </div>
+
+            <!-- Questions Container -->
+            <div id="questions-container" class="space-y-6"></div>
+
+            <!-- Submit Button -->
+            <div class="flex justify-end pt-4">
+                <button onclick="submitQuiz()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-8 rounded-xl shadow-sm transition flex items-center space-x-2">
+                    <i class="fa-solid fa-check"></i>
+                    <span>Submit & Analyze Results</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- STEP 3: RESULTS & MISTAKE ANALYSIS VIEW -->
+        <section id="view-results" class="hidden space-y-8 max-w-3xl mx-auto">
+            <!-- Score Summary Card -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm text-center space-y-4">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-brand-50 text-brand-600 text-2xl font-black" id="score-circle">
+                    0/0
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900" id="result-headline">Performance Summary</h2>
+                    <p class="text-slate-500 text-sm mt-1" id="result-subtext">Review your answers below to correct mistakes and strengthen your understanding.</p>
+                </div>
+                <div class="flex justify-center gap-4 pt-2">
+                    <button onclick="switchView('create')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-5 py-2.5 rounded-xl font-medium text-sm transition">
+                        Try Another Topic
+                    </button>
+                    <button onclick="retakeQuiz()" class="bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 rounded-xl font-medium text-sm transition flex items-center space-x-2">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span>Retake This Quiz</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Detailed Breakdown Section -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                    <i class="fa-solid fa-magnifying-glass font-normal text-brand-600"></i>
+                    <span>Mistake Analysis & Concepts</span>
+                </h3>
+                <div id="analysis-container" class="space-y-6"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-auto py-6">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-400">
+            QuizCraft • Empowering Students to Convert Mistakes into Mastery
+        </div>
+    </footer>
+
+    <!-- Application Script -->
+    <script>
+        // Sample predefined question bank to simulate AI topic quiz generation
+        const sampleDatabase = {
+            "default": [
+                {
+                    id: 1,
+                    question: "What is the primary role of Chlorophyll during Photosynthesis?",
+                    options: [
+                        "Absorbing light energy from the sun",
+                        "Absorbing water from the soil",
+                        "Releasing carbon dioxide into the air",
+                        "Breaking down glucose for immediate energy"
+                    ],
+                    correct: 0,
+                    explanation: "Chlorophyll is the green pigment in plants that absorbs light energy (mostly blue and red wavelengths) and converts it into chemical energy."
+                },
+                {
+                    id: 2,
+                    question: "Which organelle inside plant cells is responsible for carrying out photosynthesis?",
+                    options: [
+                        "Mitochondria",
+                        "Chloroplast",
+                        "Ribosome",
+                        "Endoplasmic Reticulum"
+                    ],
+                    correct: 1,
+                    explanation: "Chloroplasts contain chlorophyll and the necessary enzymatic machinery to convert solar energy into chemical energy."
+                },
+                {
+                    id: 3,
+                    question: "What are the two primary end-products of Photosynthesis?",
+                    options: [
+                        "Carbon Dioxide and Water",
+                        "Glucose and Oxygen",
+                        "Nitrogen and ATP",
+                        "Glucose and Carbon Dioxide"
+                    ],
+                    correct: 1,
+                    explanation: "During photosynthesis, plants take in carbon dioxide and water to produce Glucose (food) and Oxygen (released into the atmosphere)."
+                }
+            ]
+        };
+
+        let currentQuizData = [];
+        let userAnswers = {};
+
+        function switchView(viewName) {
+            document.getElementById('view-create').classList.add('hidden');
+            document.getElementById('view-quiz').classList.add('hidden');
+            document.getElementById('view-results').classList.add('hidden');
+
+            if (viewName === 'create') {
+                document.getElementById('view-create').classList.remove('hidden');
+            } else if (viewName === 'quiz') {
+                document.getElementById('view-quiz').classList.remove('hidden');
+            } else if (viewName === 'results') {
+                document.getElementById('view-results').classList.remove('hidden');
+            }
+        }
+
+        function handleGenerateQuiz(e) {
+            e.preventDefault();
+            const subject = document.getElementById('subject-input').value;
+            const topic = document.getElementById('topic-input').value;
+
+            // Set Meta Details
+            document.getElementById('quiz-topic-title').innerText = `${topic} (${subject})`;
+            document.getElementById('quiz-badge').innerText = subject;
+
+            // Load questions (In a full app, this would call an API/AI endpoint based on topic)
+            currentQuizData = sampleDatabase.default;
+            userAnswers = {};
+
+            renderQuizQuestions();
+            switchView('quiz');
+        }
+
+        function renderQuizQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            currentQuizData.forEach((q, index) => {
+                const card = document.createElement('div');
+                card.className = "bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4";
+                
+                let optionsHTML = '';
+                q.options.forEach((opt, optIndex) => {
+                    optionsHTML += `
+                        <label class="flex items-center space-x-3 p-3.5 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition">
+                            <input type="radio" name="question-${q.id}" value="${optIndex}" onchange="recordAnswer(${q.id}, ${optIndex})" class="w-4 h-4 text-brand-600 focus:ring-brand-500">
+                            <span class="text-sm font-medium text-slate-700">${opt}</span>
+                        </label>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <span class="text-xs font-bold text-brand-600 bg-brand-50 px-2.5 py-1 rounded-md">Question ${index + 1}</span>
+                    </div>
+                    <h3 class="font-semibold text-slate-800 text-base">${q.question}</h3>
+                    <div class="space-y-2.5 pt-2">
+                        ${optionsHTML}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function recordAnswer(questionId, optionIndex) {
+            userAnswers[questionId] = optionIndex;
+        }
+
+        function submitQuiz() {
+            if (Object.keys(userAnswers).length < currentQuizData.length) {
+                if (!confirm("You haven't answered all questions. Are you sure you want to submit?")) {
+                    return;
+                }
+            }
+
+            renderResults();
+            switchView('results');
+        }
+
+        function renderResults() {
+            let correctCount = 0;
+            const analysisContainer = document.getElementById('analysis-container');
+            analysisContainer.innerHTML = '';
+
+            currentQuizData.forEach((q, index) => {
+                const selected = userAnswers[q.id];
+                const isCorrect = selected === q.correct;
+                if (isCorrect) correctCount++;
+
+                const resultCard = document.createElement('div');
+                resultCard.className = `bg-white border rounded-2xl p-6 shadow-sm space-y-4 ${
+                    isCorrect ? 'border-emerald-200 bg-emerald-50/20' : 'border-rose-200 bg-rose-50/20'
+                }`;
+
+                let optionsAnalysis = '';
+                q.options.forEach((opt, optIndex) => {
+                    let badge = '';
+                    let borderClass = 'border-slate-200 bg-white';
+
+                    if (optIndex === q.correct) {
+                        borderClass = 'border-emerald-500 bg-emerald-50 text-emerald-900 font-medium';
+                        badge = `<span class="ml-auto text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">Correct Answer</span>`;
+                    } else if (optIndex === selected && !isCorrect) {
+                        borderClass = 'border-rose-500 bg-rose-50 text-rose-900 font-medium';
+                        badge = `<span class="ml-auto text-xs font-bold text-rose-700 bg-rose-100 px-2 py-0.5 rounded">Your Selection (Incorrect)</span>`;
+                    }
+
+                    optionsAnalysis += `
+                        <div class="flex items-center space-x-3 p-3 rounded-xl border ${borderClass} text-sm">
+                            <span>${opt}</span>
+                            ${badge}
+                        </div>
+                    `;
+                });
+
+                resultCard.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold ${isCorrect ? 'text-emerald-700 bg-emerald-100' : 'text-rose-700 bg-rose-100'} px-2.5 py-1 rounded-md">
+                            Question ${index + 1} - ${isCorrect ? 'Correct' : 'Needs Review'}
+                        </span>
+                    </div>
+                    <h4 class="font-semibold text-slate-800">${q.question}</h4>
+                    <div class="space-y-2 pt-1">${optionsAnalysis}</div>
+                    
+                    <!-- Conceptual Feedback / Correction Box -->
+                    <div class="mt-4 p-4 rounded-xl bg-white border border-slate-200 text-xs text-slate-600 leading-relaxed space-y-1">
+                        <div class="font-bold text-slate-800 flex items-center space-x-1.5">
+                            <i class="fa-solid fa-lightbulb text-amber-500"></i>
+                            <span>Concept Explanation:</span>
+                        </div>
+                        <p>${q.explanation}</p>
+                    </div>
+                `;
+
+                analysisContainer.appendChild(resultCard);
+            });
+
+            // Update Header Score
+            document.getElementById('score-circle').innerText = `${correctCount}/${currentQuizData.length}`;
+            if (correctCount === currentQuizData.length) {
+                document.getElementById('result-headline').innerText = "Perfect Mastery!";
+                document.getElementById('result-subtext').innerText = "Excellent work! You have demonstrated strong understanding of this topic.";
+            } else {
+                document.getElementById('result-headline').innerText = "Review & Correct Your Mistakes";
+                document.getElementById('result-subtext').innerText = "Carefully review the explanations below for questions you got wrong to fix your weak areas.";
+            }
+        }
+
+        function retakeQuiz() {
+            userAnswers = {};
+            renderQuizQuestions();
+            switchView('quiz');
+        }
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizCraft - Master Any Topic</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <!-- Navigation Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('create')">
+                <div class="bg-brand-600 text-white p-2 rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-graduation-cap text-xl"></i>
+                </div>
+                <span class="font-bold text-xl text-slate-900 tracking-tight">QuizCraft</span>
+            </div>
+            <nav class="flex items-center space-x-4">
+                <button onclick="switchView('create')" class="text-sm font-medium text-slate-600 hover:text-brand-600 px-3 py-2 rounded-lg transition">Create Quiz</button>
+                <button onclick="switchView('saved')" class="text-sm font-medium text-slate-600 hover:text-brand-600 px-3 py-2 rounded-lg transition">Saved Topics</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- STEP 1: CREATE QUIZ FORM -->
+        <section id="view-create" class="space-y-6">
+            <div class="text-center max-w-2xl mx-auto space-y-2">
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Master Any Difficult Topic</h1>
+                <p class="text-slate-500">Generate targeted practice quizzes for specific chapters or sub-topics you struggle with, analyze your mistakes, and build deep understanding.</p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 max-w-2xl mx-auto">
+                <form id="quiz-form" onsubmit="handleGenerateQuiz(event)" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Subject / Subject Area</label>
+                        <input type="text" id="subject-input" required placeholder="e.g., Physics, Organic Chemistry, World History" 
+                            class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-sm">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Specific Topic or Chapter</label>
+                        <input type="text" id="topic-input" required placeholder="e.g., Photosynthesis, Quadratic Equations, Newton's Laws" 
+                            class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-sm">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Difficulty Level</label>
+                            <select id="difficulty-input" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-sm bg-white">
+                                <option value="Easy">Beginner (Concept Building)</option>
+                                <option value="Medium" selected>Intermediate (Standard)</option>
+                                <option value="Hard">Advanced (Deep Problem Solving)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Number of Questions</label>
+                            <select id="questions-count" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-sm bg-white">
+                                <option value="3">3 Practice Questions</option>
+                                <option value="5" selected>5 Practice Questions</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3.5 px-6 rounded-xl shadow-sm transition duration-200 flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>Generate Custom Practice Quiz</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- STEP 2: ACTIVE QUIZ VIEW -->
+        <section id="view-quiz" class="hidden space-y-6 max-w-3xl mx-auto">
+            <!-- Quiz Meta Header -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <span id="quiz-badge" class="inline-block px-3 py-1 bg-brand-50 text-brand-600 text-xs font-semibold rounded-full mb-1">Topic</span>
+                    <h2 id="quiz-topic-title" class="text-xl font-bold text-slate-900">Photosynthesis Deep Dive</h2>
+                </div>
+                <div class="flex items-center space-x-2 text-slate-500 text-sm">
+                    <i class="fa-regular fa-clock"></i>
+                    <span>Untimed Self-Paced Practice</span>
+                </div>
+            </div>
+
+            <!-- Questions Container -->
+            <div id="questions-container" class="space-y-6"></div>
+
+            <!-- Submit Button -->
+            <div class="flex justify-end pt-4">
+                <button onclick="submitQuiz()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-8 rounded-xl shadow-sm transition flex items-center space-x-2">
+                    <i class="fa-solid fa-check"></i>
+                    <span>Submit & Analyze Results</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- STEP 3: RESULTS & MISTAKE ANALYSIS VIEW -->
+        <section id="view-results" class="hidden space-y-8 max-w-3xl mx-auto">
+            <!-- Score Summary Card -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm text-center space-y-4">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-brand-50 text-brand-600 text-2xl font-black" id="score-circle">
+                    0/0
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900" id="result-headline">Performance Summary</h2>
+                    <p class="text-slate-500 text-sm mt-1" id="result-subtext">Review your answers below to correct mistakes and strengthen your understanding.</p>
+                </div>
+                <div class="flex justify-center gap-4 pt-2">
+                    <button onclick="switchView('create')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-5 py-2.5 rounded-xl font-medium text-sm transition">
+                        Try Another Topic
+                    </button>
+                    <button onclick="retakeQuiz()" class="bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 rounded-xl font-medium text-sm transition flex items-center space-x-2">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span>Retake This Quiz</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Detailed Breakdown Section -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                    <i class="fa-solid fa-magnifying-glass font-normal text-brand-600"></i>
+                    <span>Mistake Analysis & Concepts</span>
+                </h3>
+                <div id="analysis-container" class="space-y-6"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-auto py-6">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-400">
+            QuizCraft • Empowering Students to Convert Mistakes into Mastery
+        </div>
+    </footer>
+
+    <!-- Application Script -->
+    <script>
+        // Sample predefined question bank to simulate AI topic quiz generation
+        const sampleDatabase = {
+            "default": [
+                {
+                    id: 1,
+                    question: "What is the primary role of Chlorophyll during Photosynthesis?",
+                    options: [
+                        "Absorbing light energy from the sun",
+                        "Absorbing water from the soil",
+                        "Releasing carbon dioxide into the air",
+                        "Breaking down glucose for immediate energy"
+                    ],
+                    correct: 0,
+                    explanation: "Chlorophyll is the green pigment in plants that absorbs light energy (mostly blue and red wavelengths) and converts it into chemical energy."
+                },
+                {
+                    id: 2,
+                    question: "Which organelle inside plant cells is responsible for carrying out photosynthesis?",
+                    options: [
+                        "Mitochondria",
+                        "Chloroplast",
+                        "Ribosome",
+                        "Endoplasmic Reticulum"
+                    ],
+                    correct: 1,
+                    explanation: "Chloroplasts contain chlorophyll and the necessary enzymatic machinery to convert solar energy into chemical energy."
+                },
+                {
+                    id: 3,
+                    question: "What are the two primary end-products of Photosynthesis?",
+                    options: [
+                        "Carbon Dioxide and Water",
+                        "Glucose and Oxygen",
+                        "Nitrogen and ATP",
+                        "Glucose and Carbon Dioxide"
+                    ],
+                    correct: 1,
+                    explanation: "During photosynthesis, plants take in carbon dioxide and water to produce Glucose (food) and Oxygen (released into the atmosphere)."
+                }
+            ]
+        };
+
+        let currentQuizData = [];
+        let userAnswers = {};
+
+        function switchView(viewName) {
+            document.getElementById('view-create').classList.add('hidden');
+            document.getElementById('view-quiz').classList.add('hidden');
+            document.getElementById('view-results').classList.add('hidden');
+
+            if (viewName === 'create') {
+                document.getElementById('view-create').classList.remove('hidden');
+            } else if (viewName === 'quiz') {
+                document.getElementById('view-quiz').classList.remove('hidden');
+            } else if (viewName === 'results') {
+                document.getElementById('view-results').classList.remove('hidden');
+            }
+        }
+
+        function handleGenerateQuiz(e) {
+            e.preventDefault();
+            const subject = document.getElementById('subject-input').value;
+            const topic = document.getElementById('topic-input').value;
+
+            // Set Meta Details
+            document.getElementById('quiz-topic-title').innerText = `${topic} (${subject})`;
+            document.getElementById('quiz-badge').innerText = subject;
+
+            // Load questions (In a full app, this would call an API/AI endpoint based on topic)
+            currentQuizData = sampleDatabase.default;
+            userAnswers = {};
+
+            renderQuizQuestions();
+            switchView('quiz');
+        }
+
+        function renderQuizQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            currentQuizData.forEach((q, index) => {
+                const card = document.createElement('div');
+                card.className = "bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4";
+                
+                let optionsHTML = '';
+                q.options.forEach((opt, optIndex) => {
+                    optionsHTML += `
+                        <label class="flex items-center space-x-3 p-3.5 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition">
+                            <input type="radio" name="question-${q.id}" value="${optIndex}" onchange="recordAnswer(${q.id}, ${optIndex})" class="w-4 h-4 text-brand-600 focus:ring-brand-500">
+                            <span class="text-sm font-medium text-slate-700">${opt}</span>
+                        </label>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <span class="text-xs font-bold text-brand-600 bg-brand-50 px-2.5 py-1 rounded-md">Question ${index + 1}</span>
+                    </div>
+                    <h3 class="font-semibold text-slate-800 text-base">${q.question}</h3>
+                    <div class="space-y-2.5 pt-2">
+                        ${optionsHTML}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function recordAnswer(questionId, optionIndex) {
+            userAnswers[questionId] = optionIndex;
+        }
+
+        function submitQuiz() {
+            if (Object.keys(userAnswers).length < currentQuizData.length) {
+                if (!confirm("You haven't answered all questions. Are you sure you want to submit?")) {
+                    return;
+                }
+            }
+
+            renderResults();
+            switchView('results');
+        }
+
+        function renderResults() {
+            let correctCount = 0;
+            const analysisContainer = document.getElementById('analysis-container');
+            analysisContainer.innerHTML = '';
+
+            currentQuizData.forEach((q, index) => {
+                const selected = userAnswers[q.id];
+                const isCorrect = selected === q.correct;
+                if (isCorrect) correctCount++;
+
+                const resultCard = document.createElement('div');
+                resultCard.className = `bg-white border rounded-2xl p-6 shadow-sm space-y-4 ${
+                    isCorrect ? 'border-emerald-200 bg-emerald-50/20' : 'border-rose-200 bg-rose-50/20'
+                }`;
+
+                let optionsAnalysis = '';
+                q.options.forEach((opt, optIndex) => {
+                    let badge = '';
+                    let borderClass = 'border-slate-200 bg-white';
+
+                    if (optIndex === q.correct) {
+                        borderClass = 'border-emerald-500 bg-emerald-50 text-emerald-900 font-medium';
+                        badge = `<span class="ml-auto text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">Correct Answer</span>`;
+                    } else if (optIndex === selected && !isCorrect) {
+                        borderClass = 'border-rose-500 bg-rose-50 text-rose-900 font-medium';
+                        badge = `<span class="ml-auto text-xs font-bold text-rose-700 bg-rose-100 px-2 py-0.5 rounded">Your Selection (Incorrect)</span>`;
+                    }
+
+                    optionsAnalysis += `
+                        <div class="flex items-center space-x-3 p-3 rounded-xl border ${borderClass} text-sm">
+                            <span>${opt}</span>
+                            ${badge}
+                        </div>
+                    `;
+                });
+
+                resultCard.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold ${isCorrect ? 'text-emerald-700 bg-emerald-100' : 'text-rose-700 bg-rose-100'} px-2.5 py-1 rounded-md">
+                            Question ${index + 1} - ${isCorrect ? 'Correct' : 'Needs Review'}
+                        </span>
+                    </div>
+                    <h4 class="font-semibold text-slate-800">${q.question}</h4>
+                    <div class="space-y-2 pt-1">${optionsAnalysis}</div>
+                    
+                    <!-- Conceptual Feedback / Correction Box -->
+                    <div class="mt-4 p-4 rounded-xl bg-white border border-slate-200 text-xs text-slate-600 leading-relaxed space-y-1">
+                        <div class="font-bold text-slate-800 flex items-center space-x-1.5">
+                            <i class="fa-solid fa-lightbulb text-amber-500"></i>
+                            <span>Concept Explanation:</span>
+                        </div>
+                        <p>${q.explanation}</p>
+                    </div>
+                `;
+
+                analysisContainer.appendChild(resultCard);
+            });
+
+            // Update Header Score
+            document.getElementById('score-circle').innerText = `${correctCount}/${currentQuizData.length}`;
+            if (correctCount === currentQuizData.length) {
+                document.getElementById('result-headline').innerText = "Perfect Mastery!";
+                document.getElementById('result-subtext').innerText = "Excellent work! You have demonstrated strong understanding of this topic.";
+            } else {
+                document.getElementById('result-headline').innerText = "Review & Correct Your Mistakes";
+                document.getElementById('result-subtext').innerText = "Carefully review the explanations below for questions you got wrong to fix your weak areas.";
+            }
+        }
+
+        function retakeQuiz() {
+            userAnswers = {};
+            renderQuizQuestions();
+            switchView('quiz');
+        }
+    </script>
+</body>
+</html>
